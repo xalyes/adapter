@@ -6,12 +6,11 @@
 
 using namespace boost::asio;
 
-void Reciever::Acceptor(int port)
+void Reciever::Acceptor(int port, unsigned int module)
 {
 	ip::tcp::endpoint ep(ip::tcp::v4(), port);
 	ip::tcp::acceptor acc(g_service, ep);
 	boost::thread_group threads;
-	char buff[1024];
 
 	while (m_exitStatus != true)
 	{
@@ -29,7 +28,7 @@ void Reciever::Acceptor(int port)
 		std::string msg(boost::asio::buffers_begin(bufs), boost::asio::buffers_begin(bufs) + bytes - 1);
 		std::cout << "get it: " << msg << std::endl;
 		//std::string msg(response_stream.str(), bytes - 1);
-		threads.create_thread(boost::bind(TranslateMessage, msg, port));
+		threads.create_thread(boost::bind(TranslateMessage, msg, module, m_settings.GetType(module)));
 	}
 	threads.join_all();
 }
@@ -37,9 +36,9 @@ void Reciever::Acceptor(int port)
 void Reciever::Start()
 {
 	m_exitStatus = false;
-	for (int i = 0; i < numberOfPorts; ++i)
+	for (unsigned int i = 0; i < m_settings.GetAmount(); ++i)
 	{
-		m_threads.create_thread(boost::bind(&Reciever::Acceptor, this, PortsToListen[i]));
+		m_threads.create_thread(boost::bind(&Reciever::Acceptor, this, m_settings.GetInputPort(i), i));
 	}
 	std::cout << "reciever started" << std::endl;
 }

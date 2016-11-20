@@ -1,17 +1,20 @@
 #pragma once
 #include "network_helpers.h"
-
-static std::vector<std::string> data;
-std::vector<std::string>& GetData();
+#include "settings.h"
 
 class Sender
 {
 public:
-	void Acceptor(int port);
+	Sender(Settings& settings) : m_settings(settings)
+	{}
+	void Acceptor(int port, unsigned int module);
 	void Start();
 	void Stop();
+
+	static std::vector<std::string> m_data;
 
 private:
 	boost::thread_group m_threads;
 	bool m_exitStatus;
+	Settings m_settings;
 };

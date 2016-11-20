@@ -4,22 +4,11 @@
 
 using namespace boost::asio;
 
-std::vector<std::string>& GetData()
-{
-	if (data.empty())
-	{
-		for (int i = 0; i < numberOfPorts; ++i)
-			data.push_back("null data");
-	}
-	return data;
-}
-
-void Sender::Acceptor(int port)
+void Sender::Acceptor(int port, unsigned int module)
 {
 	ip::tcp::endpoint ep(ip::address::from_string("127.0.0.1"), port);
 	ip::tcp::acceptor acc(g_service, ep);
 	boost::thread_group threads;
-	char buff[1024];
 
 	while (m_exitStatus != true)
 	{
@@ -29,15 +18,13 @@ void Sender::Acceptor(int port)
 		std::cout << "accept" << std::endl;
 		boost::asio::streambuf response;
 		size_t bytes = read_until(sock, response, '\0');
-		//sock.close();
 		boost::asio::streambuf::const_buffers_type bufs = response.data();
 		std::string msg(boost::asio::buffers_begin(bufs), boost::asio::buffers_begin(bufs) + bytes - 1);
 		std::cout << "get it: " << msg << std::endl;
-		//std::string msg(buff, bytes - 1);
 		if (msg == "GET")
 		{
-			sock.write_some(buffer(GetData()[0]));
-			std::cout << "write it: " << GetData()[0] << std::endl;
+			sock.write_some(buffer(Sender::m_data[module]));
+			std::cout << "write it: " << Sender::m_data[module] << std::endl;
 		}
 		sock.close();
 		std::cout << "close it" << std::endl;
@@ -48,9 +35,9 @@ void Sender::Acceptor(int port)
 void Sender::Start()
 {
 	m_exitStatus = false;
-	for (int i = 0; i < numberOfPorts; ++i)
+	for (unsigned int i = 0; i < m_settings.GetAmount(); ++i)
 	{
-		m_threads.create_thread(boost::bind(&Sender::Acceptor, this, PortsToSend[i]));
+		m_threads.create_thread(boost::bind(&Sender::Acceptor, this, m_settings.GetOutputPort(i), i));
 	}
 	std::cout << "sender started" << std::endl;
 }
@@ -60,3 +47,5 @@ void Sender::Stop()
 	m_exitStatus = true;
 	m_threads.join_all();
 }
+
+std::vector<std::string> Sender::m_data = { "null", "null", "null", "null", "null", "null", "null", "null" };
