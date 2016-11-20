@@ -18,7 +18,6 @@ void Reciever::Acceptor(int port, unsigned int module)
 		std::cout << "socket is open: " << port << std::endl;
 		acc.accept(sock);
 		std::cout << "accept" << std::endl;
-		boost::system::error_code err;
 		boost::asio::streambuf response;
 		size_t bytes = read_until(sock, response, '\0');
 		
