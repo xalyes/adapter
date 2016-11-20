@@ -83,7 +83,7 @@
       <AdditionalLibraryDirectories>C:\boost\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <Bscmake>
-      <PreserveSbr>true</PreserveSbr>
+      <PreserveSbr>false</PreserveSbr>
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
